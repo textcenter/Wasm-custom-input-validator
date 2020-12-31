@@ -1,0 +1,77 @@
+﻿@using System.Text.RegularExpressions
+<div>
+
+    <ol>
+
+        @foreach (var r in Rules)
+        {
+            if (!ShowValidatedRule && r.IsValid)
+                continue;
+            string icon = r.IsValid ? $"&#9745" : $"&#9746;";
+            string className = r.IsValid ? "valid" : "invalid";
+            <li >
+                <label class="@className">@((MarkupString)icon)</label> @((MarkupString)r.Message)
+            </li>
+        }
+    </ol>
+</div>
+@code {
+    public class InputVerifyRule
+    {
+        public bool IsValid { get; set; }
+        public int RuleId { get; set; }
+        public string Message { get; set; }
+        public Regex Regex { get; set; }
+        public Func<string, bool> CustomValidator { get; set; }
+        public InputVerifyRule(string message, Func<string, bool> customValidator) : this(message, null, customValidator)
+        {
+
+        }
+        public InputVerifyRule(string message, Regex regex) : this(message, regex, null)
+        {
+
+        }
+        private InputVerifyRule(string message, Regex regex, Func<string, bool> customValidator)
+        {
+            Message = message;
+            Regex = regex;
+            CustomValidator = customValidator;
+        }
+        public bool Validate(string dataInput)
+        {
+            if (string.IsNullOrEmpty(dataInput))
+                IsValid = false;
+            else if (Regex != null)
+                IsValid = Regex.IsMatch(dataInput);
+            else if (CustomValidator != null)
+                IsValid = CustomValidator(dataInput);
+            return IsValid;
+        }
+
+    };
+
+    [Parameter]
+    public bool ShowValidatedRule { get; set; }
+    public List<InputVerifyRule> Rules { get; set; }
+    public InputValidator()
+    {
+        Rules = new List<InputVerifyRule>();
+        ShowValidatedRule = true;
+
+
+
+
+    }
+
+
+    public bool Validate(string dataInput)
+    {
+
+        foreach (var r in Rules)
+            r.Validate(dataInput);
+        this.StateHasChanged();
+
+        return Rules.All(x => x.IsValid);
+    }
+
+}

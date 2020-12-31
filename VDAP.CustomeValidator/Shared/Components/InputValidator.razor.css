@@ -1,0 +1,13 @@
+﻿
+.valid {
+    font-size: 30px;
+    color: green;
+   /* content: '\2611'*/
+}
+
+.invalid {
+    font-size: 30px;
+    color: red;
+    /*content: "\2611"*/
+
+}

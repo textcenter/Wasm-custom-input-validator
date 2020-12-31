@@ -1,0 +1,66 @@
+﻿@page "/"
+@using   VDAP.CustomeValidator.Shared.Components
+<h1>Welcome to Custom Validator Example</h1>
+<div>
+    <h4>Style 1 Example</h4>
+    <input type="text" placeholder="Enter data to test" @oninput="@((e)=> { Validator1.Validate(e.Value.ToString()); })" />
+    <br />
+    <InputValidator @ref="Validator1"></InputValidator>
+</div>
+<div>
+    <hr />
+</div>
+<div>
+    <h4>Style 2 Example</h4>
+    <input type="text" placeholder="Enter data to test" @oninput="@((e)=> { Validator2.Validate(e.Value.ToString()); })" />
+    <br />
+    <InputValidator @ref="Validator2" ShowValidatedRule="false"></InputValidator>
+</div>
+
+<a href="https://textcenter.vdap.com">TextCenter.vdap.com</a>
+
+@code {
+
+    public InputValidator Validator1 { get; set; }
+    public InputValidator Validator2 { get; set; }
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var rule = new InputValidator.InputVerifyRule("Minimum length require is 10.", (inputData) =>
+            {
+                return inputData.Length >= 10;
+            });
+
+            Validator1.Rules.Add(rule);
+            Validator2.Rules.Add(rule);
+            rule = new InputValidator.InputVerifyRule("Must has at least one capital letter but all.", (inputData) =>
+            {
+                return inputData != inputData.ToLower() && inputData != inputData.ToUpper();
+            });
+
+            Validator1.Rules.Add(rule);
+            Validator2.Rules.Add(rule);
+            rule = new InputValidator.InputVerifyRule("Must has at least one digit letter but all.", (inputData) =>
+            {
+
+                return inputData.Any(x => char.IsDigit(x)) && !inputData.All(x => char.IsDigit(x));
+            });
+
+            Validator1.Rules.Add(rule);
+            Validator2.Rules.Add(rule);
+
+            string specials = "!@#$%^&*(){}[]|?";
+            rule = new InputValidator.InputVerifyRule($@"Must has at least one of ""{specials}""", (inputData) =>
+            {
+                return specials.Any(x => inputData.Contains(x));
+            });
+
+            Validator1.Rules.Add(rule);
+            Validator2.Rules.Add(rule);
+            Validator1.Validate("");
+            Validator2.Validate("");
+        }
+        base.OnAfterRender(firstRender);
+    }
+}
